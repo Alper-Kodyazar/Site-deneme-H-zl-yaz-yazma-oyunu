@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelime Yazma Oyunu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 20px;
+        }
+        #game-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #scoreboard {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Kelime Yazma Oyunu</h1>
+        <label for="playerName">İsminiz:</label>
+        <input type="text" id="playerName" />
+        <button id="startGame">Oyuna Başla</button>
+        <div id="game" style="display: none;">
+            <h2 id="wordToType"></h2>
+            <input type="text" id="userInput" />
+            <p id="message"></p>
+            <p>Skor: <span id="score">0</span></p>
+            <p>Time Left: <span id="timeLeft">60</span> sn</p>
+        </div>
+        <div id="scoreboard" style="display: none;">
+            <h3>Skor Tablosu</h3>
+            <ul id="scoreList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const wordList = [
+            "Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar destekli tasarım", 
+            "Bilgisayar destekli teknolojiler", "Bilgisayar laboratuvarı", "Birlikte işlerlik", 
+            "E-posta", "Bilgisayar", "Telefon", "RAM", "İşlemci", "Ekran kartı", "Sabit disk", 
+            "Anakart", "Klavye", "Fare", "Monitör", "İşletim sistemi", "Uygulamalar", 
+            "İnternet bağlantısı", "USB bellek", "Yazıcı", "Hoparlör", "Web kamera", 
+            "Mikrofon", "Pil", "Soğutucu", "Ethernet kablosu", "Modem", "Router", 
+            "Grafik tasarım programı", "Veri tabanı", "Yedekleme cihazı", "Ağ kartı", 
+            "Güç kaynağı", "SSD", "HDD", "Bluetooth adaptörü", "HDMI kablosu", "Ses kartı", 
+            "Webcam kapağı", "Oyun kumandası", "Dokunmatik ekran", "Stylus kalem", 
+            "Yazılım lisansı", "Antivirüs programı", "Güvenlik duvarı", "E-posta uygulaması", 
+            "Bulut depolama", "İşlemci fanı", "Ethernet portu", "Wi-Fi adaptörü", 
+            "Sıvı soğutma sistemi", "Projektör", "LED ekran", "RAM soğutucusu", 
+            "Fare altlığı", "Mikro SD kart", "Kart okuyucu", "VR gözlüğü", "Akıllı saat", 
+            "Akıllı hoparlör", "Şarj kablosu", "Taşınabilir batarya", "Kulaklık", 
+            "Mikrofon standı", "Grafik tablet", "Sunucu", "Ağ anahtarı", "USB hub", 
+            "Docking station", "Oyun konsolu", "Akıllı TV", "3D yazıcı", "Veri kablosu", 
+            "Zamanlayıcı yazılım"
+        ];
+
+        let score = 0;
+        let timeLeft = 60;
+        let timer;
+        let playerName;
+        let scoreTable = [];
+
+        document.getElementById('startGame').onclick = function() {
+            playerName = document.getElementById('playerName').value;
+            if (playerName) {
+                document.getElementById('game-container').style.display = 'none';
+                startGame();
+            } else {
+                alert("Lütfen isminizi girin.");
+            }
+        };
+
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            document.getElementById('game').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'none';
+            document.getElementById('score').textContent = score;
+            document.getElementById('timeLeft').textContent = timeLeft;
+            document.getElementById('message').textContent = "";
+
+            nextWord();
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        function nextWord() {
+            const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+            document.getElementById('wordToType').textContent = randomWord;
+            document.getElementById('userInput').value = '';
+            document.getElementById('userInput').focus();
+
+            document.getElementById('userInput').onkeyup = function(event) {
+                if (event.key === 'Enter') {
+                    checkInput(randomWord);
+                }
+            };
+        }
+
+        function checkInput(word) {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput === word) {
+                score++;
+                document.getElementById('score').textContent = score;
+                nextWord();
+            } else {
+                document.getElementById('message').textContent = "Yanlış yazdınız!";
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('timeLeft').textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game').style.display = 'none';
+            scoreTable.push({ name: playerName, score: score });
+            scoreTable.sort((a, b) => b.score - a.score);
+            showScoreboard();
+        }
+
+        function showScoreboard() {
+            document.getElementById('scoreboard').style.display = 'block';
+            const scoreList = document.getElementById('scoreList');
+            scoreList.innerHTML = "";
+            scoreTable.slice(0, 10).forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${entry.name} - ${entry.score} puan`;
+                scoreList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
