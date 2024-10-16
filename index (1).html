@@ -76,7 +76,9 @@
         document.getElementById('startGame').onclick = function() {
             playerName = document.getElementById('playerName').value;
             if (playerName) {
-                document.getElementById('game-container').style.display = 'none';
+                document.getElementById('game').style.display = 'block';  // Oyun ekranını göster
+                document.getElementById('startGame').style.display = 'none';  // Başla butonunu gizle
+                document.getElementById('playerName').style.display = 'none';  // İsim alanını gizle
                 startGame();
                 music.play();  // Oyun başladığında müziği başlat
             } else {
@@ -152,4 +154,5 @@
     </script>
 </body>
 </html>
+
 
