@@ -41,6 +41,9 @@
         </div>
     </div>
 
+    <!-- Şarkı dosyasını ekliyoruz -->
+    <audio id="backgroundMusic" src="Mecbursun__IBK5zOqPNKM__.mp3"></audio>
+
     <script>
         const wordList = [
             "Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar destekli tasarım", 
@@ -68,11 +71,14 @@
         let playerName;
         let scoreTable = [];
 
+        const music = document.getElementById("backgroundMusic");
+
         document.getElementById('startGame').onclick = function() {
             playerName = document.getElementById('playerName').value;
             if (playerName) {
                 document.getElementById('game-container').style.display = 'none';
                 startGame();
+                music.play();  // Oyun başladığında müziği başlat
             } else {
                 alert("Lütfen isminizi girin.");
             }
@@ -127,6 +133,7 @@
 
         function endGame() {
             document.getElementById('game').style.display = 'none';
+            music.pause();  // Oyun bittiğinde müziği durdur
             scoreTable.push({ name: playerName, score: score });
             scoreTable.sort((a, b) => b.score - a.score);
             showScoreboard();
@@ -145,3 +152,4 @@
     </script>
 </body>
 </html>
+
