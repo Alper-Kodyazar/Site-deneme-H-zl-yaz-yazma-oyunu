@@ -3,142 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alper Games Klavye Oyunu</title>
+    <title>Kelime Oyunu</title>
     <style>
+        /* Genel stil */
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
         }
-        #game, #scoreboard {
-            display: none;
-        }
-        #wordDisplay {
+
+        h1 {
+            margin-bottom: 20px;
             font-size: 24px;
-            margin: 20px 0;
+            text-align: center;
         }
-        #timer {
+
+        #gameArea {
+            text-align: center;
+        }
+
+        #wordDisplay {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        #userInput {
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        #scoreDisplay {
             font-size: 20px;
-            color: red;
+            margin-top: 20px;
         }
-        #highScores {
-            list-style: none;
-            padding: 0;
+
+        /* Buton stili */
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        /* Duyarlı tasarım (Responsive Design) */
+        @media only screen and (max-width: 768px) {
+            body {
+                font-size: 16px;
+            }
+
+            #wordDisplay {
+                font-size: 28px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
 <body>
+
     <h1>Alper Games Klavye Oyunu</h1>
-    <p>Lütfen isminizi girin:</p>
-    <input type="text" id="nameInput" placeholder="İsminiz">
-    <button onclick="startGame()">Başla</button>
-
-    <div id="game">
-        <p id="timer">Süre: 60</p>
-        <p id="wordDisplay"></p>
-        <input type="text" id="inputField" placeholder="Kelimeyi yazın">
-        <p>Skor: <span id="score">0</span></p>
-    </div>
-
-    <div id="scoreboard">
-        <h2>Skor Tablosu</h2>
-        <ul id="highScores"></ul>
-        <button onclick="restartGame()">Yeniden Oyna</button>
+    <div id="gameArea">
+        <div id="wordDisplay">Kelime</div>
+        <input type="text" id="userInput" placeholder="Kelimeyi yazın">
+        <button id="startButton">Oyunu Başlat</button>
+        <div id="scoreDisplay">Skor: 0</div>
     </div>
 
     <script>
-        const words = ["Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar", "Telefon", "RAM", "İşlemci", "Ekran kartı", "Sabit disk", "Anakart", "Klavy", "Fare", "Monitör", "İşletim sistemi", "Uygulamalar", "İnternet bağlantısı", "USB bellek", "Yazıcı", "Hoparlör", "Web kamera", "Mikrofon", "Pil", "Soğutucu", "Ethernet kablosu", "Modem", "Router", "Grafik tasarım programı", "Veri tabanı", "Yedekleme cihazı", "Ağ kartı", "Güç kaynağı", "SSD", "HDD", "Bluetooth adaptörü", "HDMI kablosu", "Ses kartı", "Webcam kapağı", "Oyun kumandası", "Dokunmatik ekran", "Stylus kalem", "Yazılım lisansı", "Antivirüs programı", "Güvenlik duvarı", "E-posta uygulaması", "Bulut depolama", "İşlemci fanı", "Ethernet portu", "Wi-Fi adaptörü", "Sıvı soğutma sistemi", "Projektör", "LED ekran", "RAM soğutucusu", "Fare altlığı", "Mikro SD kart", "Kart okuyucu", "VR gözlüğü", "Akıllı saat", "Akıllı hoparlör", "Şarj kablosu", "Taşınabilir batarya", "Kulaklık", "Mikrofon standı", "Grafik tablet", "Sunucu", "Ağ anahtarı", "USB hub", "Docking station", "Oyun konsolu", "Akıllı TV", "3D yazıcı", "Veri kablosu", "Zamanlayıcı yazılım"];
-        let score = 0;
-        let timeLeft = 60;
+        const words = ["merhaba", "dünya", "programlama", "javascript", "html", "oyun", "geliştirme"];
         let currentWord = "";
-        let highScores = [];
+        let score = 0;
+        let gameStarted = false;
         let timer;
 
         const wordDisplay = document.getElementById("wordDisplay");
-        const inputField = document.getElementById("inputField");
-        const scoreDisplay = document.getElementById("score");
-        const timerDisplay = document.getElementById("timer");
-        const game = document.getElementById("game");
-        const startScreen = document.getElementById("startScreen");
-        const scoreboard = document.getElementById("scoreboard");
-        const highScoresList = document.getElementById("highScores");
+        const userInput = document.getElementById("userInput");
+        const startButton = document.getElementById("startButton");
+        const scoreDisplay = document.getElementById("scoreDisplay");
 
-        function getRandomWord() {
-            return words[Math.floor(Math.random() * words.length)];
-        }
-
-        function displayNewWord() {
-            currentWord = getRandomWord();
+        // Yeni bir kelime göster
+        function showNewWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
             wordDisplay.textContent = currentWord;
+            userInput.value = "";
         }
 
+        // Skoru güncelle
         function updateScore() {
-            score += 3;
-            scoreDisplay.textContent = score;
+            scoreDisplay.textContent = "Skor: " + score;
         }
 
-        function updateHighScores() {
-            highScores.push({ name: playerName, score: score });
-            highScores.sort((a, b) => b.score - a.score);
-            highScoresList.innerHTML = "";
-            highScores.slice(0, 10).forEach((highScore, index) => {
-                const li = document.createElement("li");
-                li.textContent = `${index + 1}. ${highScore.name}: ${highScore.score}`;
-                highScoresList.appendChild(li);
-            });
-        }
-
+        // Oyunu başlat
         function startGame() {
-            playerName = document.getElementById("nameInput").value;
-            if (playerName === "") {
-                alert("Lütfen bir isim girin!");
-                return;
-            }
-            game.style.display = "block";
+            if (gameStarted) return;  // Eğer oyun başladıysa tekrar başlatma
+            gameStarted = true;
             score = 0;
-            timeLeft = 60;
-            scoreDisplay.textContent = score;
-            displayNewWord();
-            startTimer();
+            updateScore();
+            showNewWord();
+            userInput.focus();
+
+            // 1 dakikalık geri sayım
+            timer = setTimeout(() => {
+                alert("Oyun bitti! Son skorunuz: " + score);
+                gameStarted = false;
+            }, 60000);  // 1 dakika
         }
 
-        function startTimer() {
-            timer = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = `Süre: ${timeLeft}`;
-                if (timeLeft === 0) {
-                    clearInterval(timer);
-                    inputField.disabled = true;
-                    game.style.display = "none";
-                    scoreboard.style.display = "block";
-                    updateHighScores();
-                }
-            }, 1000);
-        }
-
-        inputField.addEventListener("input", function () {
-            if (inputField.value === currentWord) {
+        // Kullanıcının girdiği kelimeyi kontrol et
+        userInput.addEventListener("input", function() {
+            if (userInput.value === currentWord) {
+                score += 3;  // Her doğru kelime için 3 puan
                 updateScore();
-                displayNewWord();
-                inputField.value = "";
+                showNewWord();
             }
         });
 
-        // Kopyalamayı engelleme
-        inputField.addEventListener("paste", function (e) {
-            e.preventDefault();
-        });
-
-        function restartGame() {
-            inputField.disabled = false;
-            inputField.value = "";
-            scoreboard.style.display = "none";
-            startGame();
-        }
+        // Oyunu başlatma butonu
+        startButton.addEventListener("click", startGame);
     </script>
+
 </body>
 </html>
+
 
 
 
