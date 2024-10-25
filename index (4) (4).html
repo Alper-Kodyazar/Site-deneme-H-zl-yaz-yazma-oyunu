@@ -26,17 +26,25 @@
             margin-top: 20px;
             font-size: 18px;
         }
+        #name-form {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
 <h1>Alper Games Klavye Oyunu</h1>
-<div id="game-container">
+<div id="name-form">
+    <label for="player-name">İsminizi Girin: </label>
+    <input type="text" id="player-name">
+    <button onclick="saveName()">Oyunu Başlat</button>
+</div>
+<div id="game-container" style="display:none;">
+    <h2 id="player-greeting"></h2>
     <div id="word">Press Start to Begin</div>
     <input type="text" id="input-field" placeholder="Kelimeyi yazın" disabled>
     <div id="score-board">Skor: 0</div>
     <div id="time-board">Kalan Süre: 60</div>
-    <button onclick="startGame()">Oyunu Başlat</button>
 </div>
 
 <script>
@@ -56,6 +64,7 @@
         "Protokol", "Sanallaştırma", "Tarayıcı uzantısı", "URL", "XML"
     ];
 
+    let playerName = "";
     let score = 0;
     let timeLeft = 60;
     let currentWord = "";
@@ -65,6 +74,16 @@
         return words[Math.floor(Math.random() * words.length)];
     }
 
+    function saveName() {
+        playerName = document.getElementById("player-name").value;
+        if (playerName) {
+            document.getElementById("name-form").style.display = "none";
+            document.getElementById("game-container").style.display = "block";
+            document.getElementById("player-greeting").innerText = `Hoşgeldin, ${playerName}!`;
+            startGame();
+        }
+    }
+
     function startGame() {
         document.getElementById("input-field").disabled = false;
         document.getElementById("input-field").focus();
@@ -72,8 +91,7 @@
         timeLeft = 60;
         document.getElementById("score-board").innerText = "Skor: " + score;
         document.getElementById("time-board").innerText = "Kalan Süre: " + timeLeft;
-        currentWord = getRandomWord();
-        document.getElementById("word").innerText = currentWord;
+        updateWord();
 
         gameInterval = setInterval(() => {
             timeLeft--;
@@ -82,6 +100,11 @@
                 endGame();
             }
         }, 1000);
+    }
+
+    function updateWord() {
+        currentWord = getRandomWord();
+        document.getElementById("word").innerText = currentWord;
     }
 
     function endGame() {
@@ -95,8 +118,7 @@
         if (inputValue.toLowerCase() === currentWord.toLowerCase()) {
             score += 3; 
             document.getElementById("score-board").innerText = "Skor: " + score;
-            currentWord = getRandomWord();
-            document.getElementById("word").innerText = currentWord;
+            updateWord();
             document.getElementById("input-field").value = ""; 
         }
     });
@@ -104,6 +126,7 @@
 
 </body>
 </html>
+
 
 
 
