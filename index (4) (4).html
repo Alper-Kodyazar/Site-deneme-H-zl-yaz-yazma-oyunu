@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,119 +8,156 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
-        #game-container {
-            margin-top: 50px;
+        #game, #scoreboard {
+            display: none;
         }
-        #word {
+        #wordDisplay {
             font-size: 24px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
-        #input-field {
-            font-size: 18px;
+        #timer {
+            font-size: 20px;
+            color: red;
+        }
+        #highScores {
+            list-style: none;
+            padding: 0;
+        }
+        input, button {
             padding: 10px;
-            width: 300px;
-        }
-        #score-board, #time-board {
-            margin-top: 20px;
             font-size: 18px;
+            width: 90%;
+            max-width: 300px;
+            margin: 10px 0;
+        }
+        /* Mobil uyum için media query */
+        @media (max-width: 600px) {
+            #wordDisplay {
+                font-size: 20px;
+            }
+            #timer, #score, #player-name {
+                font-size: 18px;
+            }
+            input, button {
+                font-size: 16px;
+                padding: 8px;
+                width: 80%;
+            }
         }
     </style>
 </head>
 <body>
+    <h1>Alper Games Klavye Oyunu</h1>
+    <p>Lütfen isminizi girin:</p>
+    <input type="text" id="nameInput" placeholder="İsminiz">
+    <button onclick="startGame()">Başla</button>
 
-<h1>Alper Games Klavye Oyunu</h1>
-<div id="name-form">
-    <label for="player-name">İsminizi Girin: </label>
-    <input type="text" id="player-name">
-    <button onclick="saveName()">Oyunu Başlat</button>
-</div>
-<div id="game-container" style="display:none;">
-    <h2 id="player-greeting"></h2>
-    <div id="word">Oyunu Başlatmak için İsim Girin</div>
-    <input type="text" id="input-field" placeholder="Kelimeyi yazın" disabled>
-    <div id="score-board">Skor: 0</div>
-    <div id="time-board">Kalan Süre: 60</div>
-</div>
+    <div id="game">
+        <p id="timer">Süre: 60</p>
+        <p id="wordDisplay"></p>
+        <input type="text" id="inputField" placeholder="Kelimeyi yazın">
+        <p>Skor: <span id="score">0</span></p>
+    </div>
 
-<script>
-    const words = [
-        "Algoritma", "Anakart", "Ağ", "Bant genişliği", "Bellek", "Bilgisayar", "Bit", "Bulut bilişim",
-        "Byte", "Çevrimiçi", "Çip", "CPU", "CSS", "Database", "Dijital", "Donanım", "Dosya", 
-        "Ekran kartı", "Ethernet", "Firewall", "Hard disk", "HTML", "HTTP", "İnternet", "IP adresi",
-        "Java", "JavaScript", "Kablosuz", "Klavye", "Kod", "Komut", "Kriptografi", "Linux",
-        "Makine öğrenmesi", "Megabyte", "Modem", "Monitor", "Mouse", "Multimedya", "Nanoteknoloji",
-        "Network", "OCR", "Open Source", "Operatör sistemi", "Optik sürücü", "Output", "PDF", 
-        "Pixel", "PHP", "Program", "Python", "RAM", "Router", "Sanal gerçeklik", "Scanner", 
-        "SEO", "Server", "Sistem", "SSD", "Switch", "Tarayıcı", "TCP/IP", "Teknoloji", "Terabayt",
-        "USB", "Veri", "Veri tabanı", "Video kartı", "VPN", "Web sitesi", "Wi-Fi", "Yazılım", 
-        "Yazıcı", "Zamanlayıcı", "ZIP dosyası", "Cache", "CSS", "Debug", "DNS", "Donanım", 
-        "E-posta", "Grafik kartı", "Input", "ISP", "JSON", "Komut dosyası", "Kripto para", 
-        "LAN", "Mikroişlemci", "Modül", "MySQL", "NAS", "OpenGL", "Paylaşım", "Port", 
-        "Protokol", "Sanallaştırma", "Tarayıcı uzantısı", "URL", "XML"
-    ];
+    <div id="scoreboard">
+        <h2>Skor Tablosu</h2>
+        <ul id="highScores"></ul>
+        <button onclick="restartGame()">Yeniden Oyna</button>
+    </div>
 
-    let playerName = "";
-    let score = 0;
-    let timeLeft = 60;
-    let currentWord = "";
-    let gameInterval;
+    <script>
+        const words = ["Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar", "Telefon", "RAM", "İşlemci", "Ekran kartı", "Sabit disk", "Anakart", "Klavye", "Fare", "Monitör", "İşletim sistemi", "Uygulamalar", "İnternet bağlantısı", "USB bellek", "Yazıcı", "Hoparlör", "Web kamera", "Mikrofon", "Pil", "Soğutucu", "Ethernet kablosu", "Modem", "Router", "Grafik tasarım programı", "Veri tabanı", "Yedekleme cihazı", "Ağ kartı", "Güç kaynağı", "SSD", "HDD", "Bluetooth adaptörü", "HDMI kablosu", "Ses kartı", "Webcam kapağı", "Oyun kumandası", "Dokunmatik ekran", "Stylus kalem", "Yazılım lisansı", "Antivirüs programı", "Güvenlik duvarı", "E-posta uygulaması", "Bulut depolama", "İşlemci fanı", "Ethernet portu", "Wi-Fi adaptörü", "Sıvı soğutma sistemi", "Projektör", "LED ekran", "RAM soğutucusu", "Fare altlığı", "Mikro SD kart", "Kart okuyucu", "VR gözlüğü", "Akıllı saat", "Akıllı hoparlör", "Şarj kablosu", "Taşınabilir batarya", "Kulaklık", "Mikrofon standı", "Grafik tablet", "Sunucu", "Ağ anahtarı", "USB hub", "Docking station", "Oyun konsolu", "Akıllı TV", "3D yazıcı", "Veri kablosu", "Zamanlayıcı yazılım"];
+        let score = 0;
+        let timeLeft = 60;
+        let currentWord = "";
+        let highScores = [];
+        let timer;
 
-    function getRandomWord() {
-        return words[Math.floor(Math.random() * words.length)];
-    }
+        const wordDisplay = document.getElementById("wordDisplay");
+        const inputField = document.getElementById("inputField");
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const game = document.getElementById("game");
+        const scoreboard = document.getElementById("scoreboard");
+        const highScoresList = document.getElementById("highScores");
 
-    function saveName() {
-        playerName = document.getElementById("player-name").value;
-        if (playerName) {
-            document.getElementById("name-form").style.display = "none";
-            document.getElementById("game-container").style.display = "block";
-            document.getElementById("player-greeting").innerText = `Hoşgeldin, ${playerName}!`;
+        function getRandomWord() {
+            return words[Math.floor(Math.random() * words.length)];
+        }
+
+        function displayNewWord() {
+            currentWord = getRandomWord();
+            wordDisplay.textContent = currentWord;
+        }
+
+        function updateScore() {
+            score += 3;
+            scoreDisplay.textContent = score;
+        }
+
+        function updateHighScores() {
+            const playerName = document.getElementById("nameInput").value;
+            highScores.push({ name: playerName, score: score });
+            highScores.sort((a, b) => b.score - a.score);
+            highScoresList.innerHTML = "";
+            highScores.slice(0, 10).forEach((highScore, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${index + 1}. ${highScore.name}: ${highScore.score}`;
+                highScoresList.appendChild(li);
+            });
+        }
+
+        function startGame() {
+            const playerName = document.getElementById("nameInput").value;
+            if (playerName === "") {
+                alert("Lütfen bir isim girin!");
+                return;
+            }
+            game.style.display = "block";
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = score;
+            displayNewWord();
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Süre: ${timeLeft}`;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    inputField.disabled = true;
+                    game.style.display = "none";
+                    scoreboard.style.display = "block";
+                    updateHighScores();
+                }
+            }, 1000);
+        }
+
+        inputField.addEventListener("input", function () {
+            if (inputField.value === currentWord) {
+                updateScore();
+                displayNewWord();
+                inputField.value = "";
+            }
+        });
+
+        // Kopyalamayı engelleme
+        inputField.addEventListener("paste", function (e) {
+            e.preventDefault();
+        });
+
+        function restartGame() {
+            inputField.disabled = false;
+            inputField.value = "";
+            scoreboard.style.display = "none";
             startGame();
         }
-    }
-
-    function startGame() {
-        document.getElementById("input-field").disabled = false;
-        document.getElementById("input-field").focus();
-        score = 0;
-        timeLeft = 60;
-        document.getElementById("score-board").innerText = "Skor: " + score;
-        document.getElementById("time-board").innerText = "Kalan Süre: " + timeLeft;
-        updateWord();
-
-        gameInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById("time-board").innerText = "Kalan Süre: " + timeLeft;
-            if (timeLeft === 0) {
-                endGame();
-            }
-        }, 1000);
-    }
-
-    function updateWord() {
-        currentWord = getRandomWord();
-        document.getElementById("word").innerText = currentWord;
-    }
-
-    function endGame() {
-        clearInterval(gameInterval);
-        document.getElementById("input-field").disabled = true;
-        alert("Oyun bitti! Skorunuz: " + score);
-    }
-
-    document.getElementById("input-field").addEventListener("input", function() {
-        const inputValue = document.getElementById("input-field").value.trim();
-        if (inputValue.toLowerCase() === currentWord.toLowerCase()) {
-            score += 3; 
-            document.getElementById("score-board").innerText = "Skor: " + score;
-            updateWord();
-            document.getElementById("input-field").value = ""; 
-        }
-    });
-</script>
-
+    </script>
 </body>
 </html>
 
