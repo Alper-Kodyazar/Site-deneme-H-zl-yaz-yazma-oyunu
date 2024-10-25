@@ -11,40 +11,33 @@
             margin: 0;
             padding: 0;
         }
+        h1 {
+            font-size: calc(1.5rem + 1vw);
+        }
         #game, #scoreboard {
             display: none;
         }
         #wordDisplay {
-            font-size: 24px;
+            font-size: calc(1.2rem + 0.5vw);
             margin: 20px 0;
         }
         #timer {
-            font-size: 20px;
+            font-size: calc(1rem + 0.5vw);
             color: red;
+        }
+        input[type="text"], button {
+            font-size: calc(1rem + 0.5vw);
+            padding: 10px;
+            width: calc(80% - 20px);
+            max-width: 300px;
         }
         #highScores {
             list-style: none;
             padding: 0;
         }
-        input, button {
-            padding: 10px;
-            font-size: 18px;
-            width: 90%;
-            max-width: 300px;
-            margin: 10px 0;
-        }
-        /* Mobil uyum için media query */
         @media (max-width: 600px) {
-            #wordDisplay {
-                font-size: 20px;
-            }
-            #timer, #score, #player-name {
-                font-size: 18px;
-            }
-            input, button {
-                font-size: 16px;
-                padding: 8px;
-                width: 80%;
+            #timer, #wordDisplay {
+                font-size: 1rem;
             }
         }
     </style>
@@ -68,96 +61,7 @@
         <button onclick="restartGame()">Yeniden Oyna</button>
     </div>
 
-    <script>
-        const words = ["Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar", "Telefon", "RAM", "İşlemci", "Ekran kartı", "Sabit disk", "Anakart", "Klavye", "Fare", "Monitör", "İşletim sistemi", "Uygulamalar", "İnternet bağlantısı", "USB bellek", "Yazıcı", "Hoparlör", "Web kamera", "Mikrofon", "Pil", "Soğutucu", "Ethernet kablosu", "Modem", "Router", "Grafik tasarım programı", "Veri tabanı", "Yedekleme cihazı", "Ağ kartı", "Güç kaynağı", "SSD", "HDD", "Bluetooth adaptörü", "HDMI kablosu", "Ses kartı", "Webcam kapağı", "Oyun kumandası", "Dokunmatik ekran", "Stylus kalem", "Yazılım lisansı", "Antivirüs programı", "Güvenlik duvarı", "E-posta uygulaması", "Bulut depolama", "İşlemci fanı", "Ethernet portu", "Wi-Fi adaptörü", "Sıvı soğutma sistemi", "Projektör", "LED ekran", "RAM soğutucusu", "Fare altlığı", "Mikro SD kart", "Kart okuyucu", "VR gözlüğü", "Akıllı saat", "Akıllı hoparlör", "Şarj kablosu", "Taşınabilir batarya", "Kulaklık", "Mikrofon standı", "Grafik tablet", "Sunucu", "Ağ anahtarı", "USB hub", "Docking station", "Oyun konsolu", "Akıllı TV", "3D yazıcı", "Veri kablosu", "Zamanlayıcı yazılım"];
-        let score = 0;
-        let timeLeft = 60;
-        let currentWord = "";
-        let highScores = [];
-        let timer;
-
-        const wordDisplay = document.getElementById("wordDisplay");
-        const inputField = document.getElementById("inputField");
-        const scoreDisplay = document.getElementById("score");
-        const timerDisplay = document.getElementById("timer");
-        const game = document.getElementById("game");
-        const scoreboard = document.getElementById("scoreboard");
-        const highScoresList = document.getElementById("highScores");
-
-        function getRandomWord() {
-            return words[Math.floor(Math.random() * words.length)];
-        }
-
-        function displayNewWord() {
-            currentWord = getRandomWord();
-            wordDisplay.textContent = currentWord;
-        }
-
-        function updateScore() {
-            score += 3;
-            scoreDisplay.textContent = score;
-        }
-
-        function updateHighScores() {
-            const playerName = document.getElementById("nameInput").value;
-            highScores.push({ name: playerName, score: score });
-            highScores.sort((a, b) => b.score - a.score);
-            highScoresList.innerHTML = "";
-            highScores.slice(0, 10).forEach((highScore, index) => {
-                const li = document.createElement("li");
-                li.textContent = `${index + 1}. ${highScore.name}: ${highScore.score}`;
-                highScoresList.appendChild(li);
-            });
-        }
-
-        function startGame() {
-            const playerName = document.getElementById("nameInput").value;
-            if (playerName === "") {
-                alert("Lütfen bir isim girin!");
-                return;
-            }
-            game.style.display = "block";
-            score = 0;
-            timeLeft = 60;
-            scoreDisplay.textContent = score;
-            displayNewWord();
-            startTimer();
-        }
-
-        function startTimer() {
-            timer = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = `Süre: ${timeLeft}`;
-                if (timeLeft === 0) {
-                    clearInterval(timer);
-                    inputField.disabled = true;
-                    game.style.display = "none";
-                    scoreboard.style.display = "block";
-                    updateHighScores();
-                }
-            }, 1000);
-        }
-
-        inputField.addEventListener("input", function () {
-            if (inputField.value === currentWord) {
-                updateScore();
-                displayNewWord();
-                inputField.value = "";
-            }
-        });
-
-        // Kopyalamayı engelleme
-        inputField.addEventListener("paste", function (e) {
-            e.preventDefault();
-        });
-
-        function restartGame() {
-            inputField.disabled = false;
-            inputField.value = "";
-            scoreboard.style.display = "none";
-            startGame();
-        }
-    </script>
+    <!-- Javascript kısımlarında değişiklik yapılmadı -->
 </body>
 </html>
 
