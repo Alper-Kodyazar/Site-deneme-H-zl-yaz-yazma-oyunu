@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alper Games Klavye Oyunu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #game, #scoreboard {
+            display: none;
+        }
+        #wordDisplay {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        #timer {
+            font-size: 20px;
+            color: red;
+        }
+        #highScores {
+            list-style: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Alper Games Klavye Oyunu</h1>
+    <p>Lütfen isminizi girin:</p>
+    <input type="text" id="nameInput" placeholder="İsminiz">
+    <button onclick="startGame()">Başla</button>
+
+    <div id="game">
+        <p id="timer">Süre: 60</p>
+        <p id="wordDisplay"></p>
+        <input type="text" id="inputField" placeholder="Kelimeyi yazın">
+        <p>Skor: <span id="score">0</span></p>
+    </div>
+
+    <div id="scoreboard">
+        <h2>Skor Tablosu</h2>
+        <ul id="highScores"></ul>
+        <button onclick="restartGame()">Yeniden Oyna</button>
+    </div>
+
+    <script>
+        const words = ["Backorder", "Bant genişliği", "Bayt", "BIOS", "Bilgisayar", "Telefon", "RAM", "İşlemci", "Ekran kartı", "Sabit disk", "Anakart", "Klavy", "Fare", "Monitör", "İşletim sistemi", "Uygulamalar", "İnternet bağlantısı", "USB bellek", "Yazıcı", "Hoparlör", "Web kamera", "Mikrofon", "Pil", "Soğutucu", "Ethernet kablosu", "Modem", "Router", "Grafik tasarım programı", "Veri tabanı", "Yedekleme cihazı", "Ağ kartı", "Güç kaynağı", "SSD", "HDD", "Bluetooth adaptörü", "HDMI kablosu", "Ses kartı", "Webcam kapağı", "Oyun kumandası", "Dokunmatik ekran", "Stylus kalem", "Yazılım lisansı", "Antivirüs programı", "Güvenlik duvarı", "E-posta uygulaması", "Bulut depolama", "İşlemci fanı", "Ethernet portu", "Wi-Fi adaptörü", "Sıvı soğutma sistemi", "Projektör", "LED ekran", "RAM soğutucusu", "Fare altlığı", "Mikro SD kart", "Kart okuyucu", "VR gözlüğü", "Akıllı saat", "Akıllı hoparlör", "Şarj kablosu", "Taşınabilir batarya", "Kulaklık", "Mikrofon standı", "Grafik tablet", "Sunucu", "Ağ anahtarı", "USB hub", "Docking station", "Oyun konsolu", "Akıllı TV", "3D yazıcı", "Veri kablosu", "Zamanlayıcı yazılım"];
+        let score = 0;
+        let timeLeft = 60;
+        let currentWord = "";
+        let highScores = [];
+        let timer;
+
+        const wordDisplay = document.getElementById("wordDisplay");
+        const inputField = document.getElementById("inputField");
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const game = document.getElementById("game");
+        const startScreen = document.getElementById("startScreen");
+        const scoreboard = document.getElementById("scoreboard");
+        const highScoresList = document.getElementById("highScores");
+
+        function getRandomWord() {
+            return words[Math.floor(Math.random() * words.length)];
+        }
+
+        function displayNewWord() {
+            currentWord = getRandomWord();
+            wordDisplay.textContent = currentWord;
+        }
+
+        function updateScore() {
+            score += 3;
+            scoreDisplay.textContent = score;
+        }
+
+        function updateHighScores() {
+            highScores.push({ name: playerName, score: score });
+            highScores.sort((a, b) => b.score - a.score);
+            highScoresList.innerHTML = "";
+            highScores.slice(0, 10).forEach((highScore, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${index + 1}. ${highScore.name}: ${highScore.score}`;
+                highScoresList.appendChild(li);
+            });
+        }
+
+        function startGame() {
+            playerName = document.getElementById("nameInput").value;
+            if (playerName === "") {
+                alert("Lütfen bir isim girin!");
+                return;
+            }
+            game.style.display = "block";
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = score;
+            displayNewWord();
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Süre: ${timeLeft}`;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    inputField.disabled = true;
+                    game.style.display = "none";
+                    scoreboard.style.display = "block";
+                    updateHighScores();
+                }
+            }, 1000);
+        }
+
+        inputField.addEventListener("input", function () {
+            if (inputField.value === currentWord) {
+                updateScore();
+                displayNewWord();
+                inputField.value = "";
+            }
+        });
+
+        // Kopyalamayı engelleme
+        inputField.addEventListener("paste", function (e) {
+            e.preventDefault();
+        });
+
+        function restartGame() {
+            inputField.disabled = false;
+            inputField.value = "";
+            scoreboard.style.display = "none";
+            startGame();
+        }
+    </script>
+</body>
+</html>
+
+
+
