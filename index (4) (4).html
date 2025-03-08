@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hızlı Çarp</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-style: italic;
             text-align: center;
             margin: 0;
             padding: 0;
@@ -33,6 +37,7 @@
             font-size: 28px;
             margin: 20px 0;
             font-weight: bold;
+            font-style: italic;
             color: #66B2FF;
         }
         #timer {
@@ -95,6 +100,11 @@
         <button onclick="restartGame()">Yeniden Oyna</button>
     </div>
 
+    <audio id="backgroundMusic" autoplay loop>
+        <source src="maNga - Bir Kadın Çizeceksin Orijinal Karaoke (Orijinal Instrumental).mp3" type="audio/mpeg">
+        Tarayıcınız bu ses formatını desteklemiyor.
+    </audio>
+    
     <script>
         let score = 0;
         let timeLeft = 60;
@@ -178,6 +188,7 @@
     </script>
 </body>
 </html>
+
 
 
 
