@@ -1,6 +1,6 @@
 const BIN_ID = '67cd3f38ad19ca34f819048e';
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const API_KEY = '67cd4112acd3cb34a8f77dbc'; // JSONBin API Anahtarını ekle
+const API_KEY = '$2a$10$vNoOaSfyDIdCbPLyv6uUtOJsSsmhdzJDJBPs/26O9wfHNEtZoA4BK '; // 
 
 async function fetchScores() {
     const response = await fetch(API_URL, {
