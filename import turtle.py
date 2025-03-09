@@ -1,16 +1,6 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-
-app.use(express.static('public'));
-
 const BIN_ID = '67cd3f38ad19ca34f819048e';
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const API_KEY = '67cd4112acd3cb34a8f77dbc; // Buraya kendi API anahtarını eklemelisin
+const API_KEY = '67cd4112acd3cb34a8f77dbc'; // JSONBin API Anahtarını ekle
 
 async function fetchScores() {
     const response = await fetch(API_URL, {
@@ -31,72 +21,63 @@ async function updateScores(newScores) {
     });
 }
 
-io.on('connection', (socket) => {
-    console.log('Bir oyuncu bağlandı:', socket.id);
-    
-    fetchScores().then(scores => {
-        socket.emit('leaderboard', scores);
+document.addEventListener("DOMContentLoaded", () => {
+    const nameInput = document.getElementById("nameInput");
+    const startButton = document.getElementById("startButton");
+    const gameContainer = document.getElementById("game");
+    const questionDisplay = document.getElementById("questionDisplay");
+    const inputField = document.getElementById("inputField");
+    const scoreDisplay = document.getElementById("score");
+    const leaderboard = document.getElementById("highScores");
+
+    let playerName;
+    let score = 0;
+
+    startButton.addEventListener("click", () => {
+        playerName = nameInput.value.trim();
+        if (!playerName) {
+            alert("Lütfen bir isim girin!");
+            return;
+        }
+        gameContainer.style.display = "block";
+        generateQuestion();
+        loadLeaderboard();
     });
 
-    socket.on('submitScore', async ({ playerName, score }) => {
+    function generateQuestion() {
+        let num1 = Math.floor(Math.random() * 10) + 1;
+        let num2 = Math.floor(Math.random() * 10) + 1;
+        let correctAnswer = num1 * num2;
+        questionDisplay.textContent = `${num1} × ${num2} = ?`;
+
+        inputField.oninput = function () {
+            let userAnswer = parseInt(this.value);
+            if (userAnswer === correctAnswer) {
+                score += 3;
+                scoreDisplay.textContent = score;
+                this.value = "";
+                generateQuestion();
+                saveScore();
+            }
+        };
+    }
+
+    async function saveScore() {
         let scores = await fetchScores();
         scores.push({ name: playerName, score });
         scores.sort((a, b) => b.score - a.score);
-        scores = scores.slice(0, 10); // İlk 10 skoru tut
+        scores = scores.slice(0, 10);
         await updateScores(scores);
-        io.emit('leaderboard', scores);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Bir oyuncu ayrıldı:', socket.id);
-    });
-});
-
-server.listen(3000, () => {
-    console.log('Sunucu 3000 portunda çalışıyor');
-});
-
-// İstemci tarafı kodu
-
-const socket = io();
-let playerName;
-let room;
-
-function startGame() {
-    playerName = document.getElementById("nameInput").value;
-    if (playerName === "") {
-        alert("Lütfen bir isim girin!");
-        return;
+        loadLeaderboard();
     }
-    document.getElementById("game").style.display = "block";
-    generateQuestion();
-}
 
-socket.on('leaderboard', (scores) => {
-    const leaderboard = document.getElementById("highScores");
-    leaderboard.innerHTML = "";
-    scores.forEach((entry, index) => {
-        const li = document.createElement("li");
-        li.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
-        leaderboard.appendChild(li);
-    });
+    async function loadLeaderboard() {
+        let scores = await fetchScores();
+        leaderboard.innerHTML = "";
+        scores.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+            leaderboard.appendChild(li);
+        });
+    }
 });
-
-function submitScore(score) {
-    socket.emit('submitScore', { playerName, score });
-}
-
-function generateQuestion() {
-    let num1 = Math.floor(Math.random() * 10) + 1;
-    let num2 = Math.floor(Math.random() * 10) + 1;
-    let correctAnswer = num1 * num2;
-    document.getElementById("questionDisplay").textContent = `${num1} × ${num2} = ?`;
-    document.getElementById("inputField").oninput = function () {
-        let userAnswer = parseInt(this.value);
-        if (userAnswer === correctAnswer) {
-            submitScore(3);
-            this.value = "";
-            generateQuestion();
-        }
-    };
-}
