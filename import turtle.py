@@ -1,97 +1,110 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-
-app.use(express.static('public'));
-
-let waitingPlayer = null;
-let rooms = {};
-
-io.on('connection', (socket) => {
-    console.log('Bir oyuncu bağlandı:', socket.id);
-    
-    if (waitingPlayer) {
-        const room = `room-${waitingPlayer.id}-${socket.id}`;
-        rooms[room] = { players: [waitingPlayer, socket], scores: {} };
-        waitingPlayer.join(room);
-        socket.join(room);
-        io.to(room).emit('gameStart', { room });
-        console.log(`Oyun başladı: ${room}`);
-        waitingPlayer = null;
-    } else {
-        waitingPlayer = socket;
-    }
-
-    socket.on('answer', ({ room, answer, playerName }) => {
-        if (rooms[room]) {
-            if (!rooms[room].scores[playerName]) {
-                rooms[room].scores[playerName] = 0;
-            }
-            rooms[room].scores[playerName] += answer.correct ? 3 : 0;
-            io.to(room).emit('updateScores', rooms[room].scores);
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hızlı Çarp - Botlu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
         }
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Bir oyuncu ayrıldı:', socket.id);
-        for (let room in rooms) {
-            if (rooms[room].players.includes(socket)) {
-                io.to(room).emit('opponentLeft');
-                delete rooms[room];
-            }
+        #game {
+            margin-top: 20px;
         }
-    });
-});
+        #questionDisplay {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        input {
+            font-size: 18px;
+            padding: 5px;
+            text-align: center;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hızlı Çarp</h1>
+    <p>Lütfen isminizi girin:</p>
+    <input type="text" id="nameInput" placeholder="İsminiz">
+    <button onclick="startGame()">Başla</button>
 
-server.listen(3000, () => {
-    console.log('Sunucu 3000 portunda çalışıyor');
-});
+    <div id="game" style="display:none;">
+        <p id="timer">Süre: 60</p>
+        <p id="questionDisplay"></p>
+        <input type="number" id="inputField" placeholder="Sonucu yazın">
+        <button onclick="checkAnswer()">Gönder</button>
+        <p>Senin Skorun: <span id="playerScore">0</span></p>
+        <p>Bot Skoru: <span id="botScore">0</span></p>
+    </div>
 
-// İstemci tarafı kodu
-const socket = io();
-let playerName;
-let room;
+    <script>
+        let playerScore = 0;
+        let botScore = 0;
+        let correctAnswer = 0;
+        let timeLeft = 60;
+        let difficulty = 1;
 
-function startGame() {
-    playerName = document.getElementById("nameInput").value;
-    if (playerName === "") {
-        alert("Lütfen bir isim girin!");
-        return;
-    }
-    document.getElementById("game").style.display = "block";
-    generateQuestion();
-}
+        function startGame() {
+            const playerName = document.getElementById("nameInput").value;
+            if (!playerName) {
+                alert("Lütfen bir isim girin!");
+                return;
+            }
+            document.getElementById("game").style.display = "block";
+            generateQuestion();
+            startTimer();
+            botTurn();
+        }
 
-socket.on('gameStart', (data) => {
-    room = data.room;
-    document.getElementById("game").style.display = "block";
-    generateQuestion();
-});
+        function generateQuestion() {
+            let num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            let num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            correctAnswer = num1 * num2;
+            document.getElementById("questionDisplay").textContent = `${num1} × ${num2} = ?`;
+        }
 
-socket.on('updateScores', (scores) => {
-    document.getElementById("score").textContent = scores[playerName] || 0;
-});
-
-socket.on('opponentLeft', () => {
-    alert("Rakibiniz oyundan ayrıldı. Yeni bir rakip bekleyin.");
-    location.reload();
-});
-
-function generateQuestion() {
-    let num1 = Math.floor(Math.random() * 10) + 1;
-    let num2 = Math.floor(Math.random() * 10) + 1;
-    let correctAnswer = num1 * num2;
-    document.getElementById("questionDisplay").textContent = `${num1} × ${num2} = ?`;
-    document.getElementById("inputField").oninput = function () {
-        let userAnswer = parseInt(this.value);
-        if (userAnswer === correctAnswer) {
-            socket.emit('answer', { room, answer: { correct: true }, playerName });
-            this.value = "";
+        function checkAnswer() {
+            const playerAnswer = parseInt(document.getElementById("inputField").value);
+            if (playerAnswer === correctAnswer) {
+                playerScore += 3;
+                difficulty++;
+            }
+            document.getElementById("playerScore").textContent = playerScore;
             generateQuestion();
         }
-    };
-}
+
+        function botTurn() {
+            setTimeout(() => {
+                let botAnswer = correctAnswer + (Math.random() > 0.7 ? Math.floor(Math.random() * 10) - 5 : 0);
+                if (botAnswer === correctAnswer) {
+                    botScore += 3;
+                }
+                document.getElementById("botScore").textContent = botScore;
+                generateQuestion();
+                botTurn();
+            }, Math.floor(Math.random() * 3000) + 2000);
+        }
+
+        function startTimer() {
+            const timerDisplay = document.getElementById("timer");
+            const interval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Süre: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    alert(`Oyun Bitti! Skorun: ${playerScore}, Bot Skoru: ${botScore}`);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
