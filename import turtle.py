@@ -3,30 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hızlı Çarp - Botlu</title>
+    <title>Hızlı Çarp</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-style: italic;
             text-align: center;
+            margin: 0;
+            padding: 0;
             background-color: #121212;
-            color: white;
+            color: #ffffff;
         }
-        #game {
-            margin-top: 20px;
+        h1 {
+            background-color: #007BFF;
+            color: #ffffff;
+            padding: 20px;
+            margin: 0;
+            border-radius: 5px;
+        }
+        #game, #scoreboard {
+            display: none;
+            background: #1e1e1e;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+            max-width: 400px;
         }
         #questionDisplay {
-            font-size: 24px;
+            font-size: 28px;
             margin: 20px 0;
+            font-weight: bold;
+            font-style: italic;
+            color: #66B2FF;
         }
-        input {
-            font-size: 18px;
-            padding: 5px;
-            text-align: center;
+        #timer {
+            font-size: 20px;
+            color: #ff3d00;
         }
-        button {
+        #inputField {
             font-size: 18px;
             padding: 10px;
-            margin-top: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            text-align: center;
+            background: #333;
+            color: #fff;
+        }
+        button {
+            background-color: #007BFF;
+            color: #ffffff;
+            font-size: 18px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #highScores {
+            list-style: none;
+            padding: 0;
+        }
+        #highScores li {
+            background: #66B2FF;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            color: #121212;
+        }
+        #numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 200px;
+            margin: 10px auto;
+        }
+        .numpad-btn {
+            font-size: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -36,75 +103,89 @@
     <input type="text" id="nameInput" placeholder="İsminiz">
     <button onclick="startGame()">Başla</button>
 
-    <div id="game" style="display:none;">
+    <div id="game">
         <p id="timer">Süre: 60</p>
         <p id="questionDisplay"></p>
         <input type="number" id="inputField" placeholder="Sonucu yazın">
-        <button onclick="checkAnswer()">Gönder</button>
-        <p>Senin Skorun: <span id="playerScore">0</span></p>
-        <p>Bot Skoru: <span id="botScore">0</span></p>
+        <button onclick="toggleNumpad()">Klavye Aç</button>
+        <div id="numpad" style="display: none;"></div>
+        <p>Skor: <span id="score">0</span></p>
+    </div>
+
+    <div id="scoreboard">
+        <h2>Skor Tablosu</h2>
+        <ul id="highScores"></ul>
+        <button onclick="restartGame()">Yeniden Oyna</button>
     </div>
 
     <script>
-        let playerScore = 0;
-        let botScore = 0;
-        let correctAnswer = 0;
+        let score = 0;
         let timeLeft = 60;
-        let difficulty = 1;
+        let correctAnswer = 0;
+        let highScores = [];
+        let timer;
+
+        const questionDisplay = document.getElementById("questionDisplay");
+        const inputField = document.getElementById("inputField");
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const game = document.getElementById("game");
+        const scoreboard = document.getElementById("scoreboard");
+        const highScoresList = document.getElementById("highScores");
+        const numpad = document.getElementById("numpad");
+
+        function generateQuestion() {
+            let num1 = Math.floor(Math.random() * 10) + 1;
+            let num2 = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = num1 * num2;
+            questionDisplay.textContent = `${num1} × ${num2} = ?`;
+        }
+
+        function updateScore() {
+            score += 3;
+            scoreDisplay.textContent = score;
+        }
 
         function startGame() {
-            const playerName = document.getElementById("nameInput").value;
-            if (!playerName) {
+            playerName = document.getElementById("nameInput").value;
+            if (playerName === "") {
                 alert("Lütfen bir isim girin!");
                 return;
             }
-            document.getElementById("game").style.display = "block";
+            game.style.display = "block";
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = score;
             generateQuestion();
             startTimer();
-            botTurn();
-        }
-
-        function generateQuestion() {
-            let num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-            let num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-            correctAnswer = num1 * num2;
-            document.getElementById("questionDisplay").textContent = `${num1} × ${num2} = ?`;
-        }
-
-        function checkAnswer() {
-            const playerAnswer = parseInt(document.getElementById("inputField").value);
-            if (playerAnswer === correctAnswer) {
-                playerScore += 3;
-                difficulty++;
-            }
-            document.getElementById("playerScore").textContent = playerScore;
-            generateQuestion();
-        }
-
-        function botTurn() {
-            setTimeout(() => {
-                let botAnswer = correctAnswer + (Math.random() > 0.7 ? Math.floor(Math.random() * 10) - 5 : 0);
-                if (botAnswer === correctAnswer) {
-                    botScore += 3;
-                }
-                document.getElementById("botScore").textContent = botScore;
-                generateQuestion();
-                botTurn();
-            }, Math.floor(Math.random() * 3000) + 2000);
         }
 
         function startTimer() {
-            const timerDisplay = document.getElementById("timer");
-            const interval = setInterval(() => {
+            timer = setInterval(() => {
                 timeLeft--;
                 timerDisplay.textContent = `Süre: ${timeLeft}`;
-                if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    alert(`Oyun Bitti! Skorun: ${playerScore}, Bot Skoru: ${botScore}`);
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    inputField.disabled = true;
+                    game.style.display = "none";
+                    scoreboard.style.display = "block";
                 }
             }, 1000);
+        }
+
+        function toggleNumpad() {
+            numpad.innerHTML = "";
+            numpad.style.display = numpad.style.display === "none" ? "grid" : "none";
+            for (let i = 1; i <= 9; i++) {
+                let btn = document.createElement("button");
+                btn.textContent = i;
+                btn.classList.add("numpad-btn");
+                btn.onclick = () => inputField.value += i;
+                numpad.appendChild(btn);
+            }
         }
     </script>
 </body>
 </html>
+
 
