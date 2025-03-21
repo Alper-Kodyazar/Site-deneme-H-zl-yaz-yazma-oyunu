@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hızlı Çarp</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kader Kısmet</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
-        
+
         body {
             font-family: 'Roboto', sans-serif;
             font-weight: bold;
@@ -14,101 +14,84 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            background-color: #121212;
+            background-color: #101820;
             color: #ffffff;
         }
         h1 {
-            background-color: #007BFF;
+            background-color: #FF0000;
             color: #ffffff;
             padding: 20px;
             margin: 0;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 36px;
         }
         #game, #scoreboard {
             display: none;
-            background: #1e1e1e;
+            background: #1C1C1C;
             margin: 20px auto;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
-            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.6);
+            max-width: 500px;
         }
         #questionDisplay {
-            font-size: 28px;
+            font-size: 32px;
             margin: 20px 0;
-            font-weight: bold;
-            font-style: italic;
-            color: #66B2FF;
+            color: #ffffff;
         }
         #timer {
-            font-size: 20px;
-            color: #ff3d00;
+            font-size: 24px;
+            color: #FF3D00;
         }
         #inputField {
-            font-size: 18px;
-            padding: 10px;
-            width: 80%;
+            font-size: 20px;
+            padding: 12px;
+            width: 85%;
             margin: 10px 0;
-            border: 2px solid #007BFF;
-            border-radius: 5px;
+            border: 3px solid #FF0000;
+            border-radius: 8px;
+            background: #FF0000;
+            color: #ffffff;
             text-align: center;
-            background: #333;
-            color: #fff;
         }
         button {
-            background-color: #007BFF;
+            background-color: #FF0000;
             color: #ffffff;
-            font-size: 18px;
-            padding: 10px;
+            font-size: 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #CC0000;
+            transform: scale(1.05);
         }
         #highScores {
             list-style: none;
             padding: 0;
         }
         #highScores li {
-            background: #66B2FF;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-            color: #121212;
-        }
-        #numpad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 200px;
-            margin: 10px auto;
-        }
-        .numpad-btn {
-            font-size: 20px;
-            padding: 10px;
-            background-color: #007BFF;
-            border: none;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
+            background: #FF0000;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <h1>Hızlı Çarp</h1>
+    <h1>Kader Kısmet</h1>
     <p>Lütfen isminizi girin:</p>
-    <input type="text" id="nameInput" placeholder="İsminiz">
+    <input type="text" id="nameInput" placeholder="İsminiz" />
     <button onclick="startGame()">Başla</button>
 
     <div id="game">
         <p id="timer">Süre: 60</p>
         <p id="questionDisplay"></p>
-        <input type="number" id="inputField" placeholder="Sonucu yazın">
-        <button onclick="toggleNumpad()">Klavye Aç</button>
-        <div id="numpad" style="display: none;"></div>
+        <input type="text" id="inputField" placeholder="Cevabınızı yazın" />
         <p>Skor: <span id="score">0</span></p>
     </div>
 
@@ -119,10 +102,30 @@
     </div>
 
     <script>
+        const elementQuestions = [
+            { question: "Hidrojen'in sembolü nedir?", answer: "H" },
+            { question: "Helyum'un sembolü nedir?", answer: "He" },
+            { question: "Lityum'un sembolü nedir?", answer: "Li" },
+            { question: "Berilyum'un sembolü nedir?", answer: "Be" },
+            { question: "Bor'un sembolü nedir?", answer: "B" },
+            { question: "Karbon'un sembolü nedir?", answer: "C" },
+            { question: "Azot'un sembolü nedir?", answer: "N" },
+            { question: "Oksijen'in sembolü nedir?", answer: "O" },
+            { question: "Flor'un sembolü nedir?", answer: "F" },
+            { question: "Neon'un sembolü nedir?", answer: "Ne" },
+            { question: "Sodyum'un sembolü nedir?", answer: "Na" },
+            { question: "Magnezyum'un sembolü nedir?", answer: "Mg" },
+            { question: "Alüminyum'un sembolü nedir?", answer: "Al" },
+            { question: "Silisyum'un sembolü nedir?", answer: "Si" },
+            { question: "Fosfor'un sembolü nedir?", answer: "P" },
+            { question: "Kükürt'ün sembolü nedir?", answer: "S" },
+            { question: "Klor'un sembolü nedir?", answer: "Cl" },
+            { question: "Argon'un sembolü nedir?", answer: "Ar" }
+        ];
+        
         let score = 0;
         let timeLeft = 60;
-        let correctAnswer = 0;
-        let highScores = [];
+        let currentQuestion;
         let timer;
 
         const questionDisplay = document.getElementById("questionDisplay");
@@ -132,13 +135,10 @@
         const game = document.getElementById("game");
         const scoreboard = document.getElementById("scoreboard");
         const highScoresList = document.getElementById("highScores");
-        const numpad = document.getElementById("numpad");
 
         function generateQuestion() {
-            let num1 = Math.floor(Math.random() * 10) + 1;
-            let num2 = Math.floor(Math.random() * 10) + 1;
-            correctAnswer = num1 * num2;
-            questionDisplay.textContent = `${num1} × ${num2} = ?`;
+            currentQuestion = elementQuestions[Math.floor(Math.random() * elementQuestions.length)];
+            questionDisplay.textContent = currentQuestion.question;
         }
 
         function updateScore() {
@@ -147,8 +147,8 @@
         }
 
         function startGame() {
-            playerName = document.getElementById("nameInput").value;
-            if (playerName === "") {
+            const playerName = document.getElementById("nameInput").value;
+            if (!playerName) {
                 alert("Lütfen bir isim girin!");
                 return;
             }
@@ -173,17 +173,13 @@
             }, 1000);
         }
 
-        function toggleNumpad() {
-            numpad.innerHTML = "";
-            numpad.style.display = numpad.style.display === "none" ? "grid" : "none";
-            for (let i = 1; i <= 9; i++) {
-                let btn = document.createElement("button");
-                btn.textContent = i;
-                btn.classList.add("numpad-btn");
-                btn.onclick = () => inputField.value += i;
-                numpad.appendChild(btn);
+        inputField.addEventListener("input", function () {
+            if (inputField.value.trim().toUpperCase() === currentQuestion.answer.toUpperCase()) {
+                updateScore();
+                generateQuestion();
+                inputField.value = "";
             }
-        }
+        });
     </script>
 </body>
 </html>
